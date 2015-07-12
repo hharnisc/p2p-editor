@@ -9,7 +9,7 @@
     "socket.io-client": "^1.3.5",
     "socket.io-p2p": "^1.3.1",
     "query-string": "^2.3.0",
-    "ot-p2p-model": "https://github.com/hharnisc/ot-p2p-model.git#c7cff215ad7964dc8ee41556bf10ed15a965ad51",
+    "ot-p2p-model": "^0.0.5",
     "react-quill": "https://github.com/hharnisc/react-quill.git#0316d282d77616d03ceb889f5ea7527a6c027984"
   },
   "devDependencies": {

@@ -65,8 +65,8 @@ var Main = React.createClass({
 
     // broadcast model changes
     // these are sent between peers
-    model.on("broadcast", function (command) {
-      p2p.emit("peer-msg", command);
+    model.on("broadcast", function (op) {
+      p2p.emit("peer-msg", {type: "op", op: op});
     });
 
     p2p.on("ready", function () {
@@ -81,14 +81,6 @@ var Main = React.createClass({
       if (!roomId){
         that.sendPeerInit();
       }
-    });
-
-    p2p.on("offer", function (data) {
-      console.log("offer", data);
-    });
-
-    socket.on("numClients", function (data) {
-      console.log("numClients", data);
     });
 
     p2p.on("peer-obj", function (data) {
@@ -122,46 +114,31 @@ var Main = React.createClass({
   },
 
   routePeerMessage: function (data) {
-    if (data.type === "insert") {
-      this.insertText(data);
-    } else if (data.type === "delete") {
-      this.deleteText(data);
+    if (data.type === "op") {
+      this.remoteOp(data.op);
     } else if (data.type === "peer-init") {
       this.peerInit(data);
     }
   },
 
-  insertText: function (command) {
-    var viewIndex = this.props.otp2pModel.modelIndexToViewIndex(
-      command.index,
-      this.props.otp2pModel.typeModel.data
-    );
-    this.props.otp2pModel.remoteInsert(command.index, command.value);
-    this.refs.textBox.insertText(viewIndex, command.value, "remote");
-  },
-
-  deleteText: function (command) {
-    var viewIndex = this.props.otp2pModel.modelIndexToViewIndex(
-      command.index,
-      this.props.otp2pModel.typeModel.data
-    );
-
-    this.props.otp2pModel.remoteDelete(command.index, command.numChars);
-    this.refs.textBox.deleteText(viewIndex, command.numChars, "remote");
+  remoteOp: function (op) {
+    this.props.otp2pModel.remoteOp(op.revision, op.op);
+    this.refs.textBox.setText(this.props.otp2pModel.get());
   },
 
   peerInit: function (command) {
     // accept the initialized data
-    this.props.otp2pModel.typeModel = command.model;
-    this.props.otp2pModel.view = this.props.otp2pModel.modelItemsToView(command.model.data);
-    this.refs.textBox.setText(this.props.otp2pModel.view);
+    this.props.otp2pModel.importModel(command.model);
+    this.props.otp2pModel.importHistory(command.history);
+    this.refs.textBox.setText(this.props.otp2pModel.get());
   },
 
   sendPeerInit: function () {
     // transmit initialization data
     this.props.p2p.emit("peer-msg", {
       type: "peer-init",
-      model: this.props.otp2pModel.typeModel
+      model: this.props.otp2pModel.exportModel(),
+      history: this.props.otp2pModel.exportHistory(),
     });
   },
 
