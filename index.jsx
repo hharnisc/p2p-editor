@@ -84,12 +84,10 @@ var Main = React.createClass({
     });
 
     p2p.on("peer-obj", function (data) {
-      console.log("peer-obj", data);
       that.addPeer(data.peerId);
     });
 
     p2p.on("peer-disconnect", function (data) {
-      console.log("peer-disconnect", data);
       that.removePeer(data.peerId);
     });
 
