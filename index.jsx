@@ -19,7 +19,7 @@ var Main = React.createClass({
     return {
       otp2pModel: new OTP2PModel(),
       socket: socket,
-      p2p: new P2P({}, socket)
+      p2p: new P2P(socket, {trickle: false})
     };
   },
 
@@ -69,7 +69,7 @@ var Main = React.createClass({
       p2p.emit("peer-msg", {type: "op", op: op});
     });
 
-    p2p.on("ready", function () {
+    p2p.on("upgrade", function () {
       // all comminication on this channel
       // will be sent to peers with WebRTC
       p2p.usePeerConnection = true;
